@@ -61,7 +61,9 @@ function ProfileSettings() {
       .from('portfolio-assets')
       .upload(filePath, file, { upsert: true })
 
-    if (uploadError) throw uploadError
+    if (uploadError) {
+      throw new Error(`Unable to upload ${folder === 'profile' ? 'profile photo' : 'resume'}: ${uploadError.message}`)
+    }
 
     const { data } = supabase.storage.from('portfolio-assets').getPublicUrl(filePath)
     return data.publicUrl
@@ -91,7 +93,7 @@ function ProfileSettings() {
         ? await supabase.from('profile').update(payload).eq('id', form.id).select().maybeSingle()
         : await supabase.from('profile').insert(payload).select().maybeSingle()
 
-      if (saveError) throw saveError
+      if (saveError) throw new Error(`Unable to save profile: ${saveError.message}`)
 
       setForm((prev) => ({ ...prev, ...savedRow, resume_url: resumeUrl, profile_image_url: profileImageUrl }))
       setPhotoFile(null)
