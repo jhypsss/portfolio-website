@@ -1,6 +1,7 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import ThemeToggle from './ThemeToggle'
 import { scrollToSection } from '../utils/scrollToSection'
+import { supabase } from '../services/supabaseClient'
 
 const NAV_LINKS = [
   { href: '#home', label: 'Home', key: null },
@@ -13,6 +14,29 @@ const NAV_LINKS = [
 
 function Navbar({ visibleSections = {} }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const [fullName, setFullName] = useState('Portfolio')
+
+  useEffect(() => {
+    let isMounted = true
+
+    async function loadFullName() {
+      const { data, error } = await supabase
+        .from('profile')
+        .select('full_name')
+        .limit(1)
+        .maybeSingle()
+
+      if (isMounted && !error && data?.full_name) {
+        setFullName(data.full_name)
+      }
+    }
+
+    loadFullName()
+
+    return () => {
+      isMounted = false
+    }
+  }, [])
 
   const links = NAV_LINKS.filter((link) => !link.key || visibleSections[link.key] !== false)
 
@@ -25,7 +49,7 @@ function Navbar({ visibleSections = {} }) {
     <header className="navbar">
       <div className="navbar-inner">
         <a href="#home" className="navbar-brand" onClick={(event) => handleNavClick(event, 'home')}>
-          Patrick Torres
+          {fullName}
         </a>
 
         <button
