@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import LandingPage from './pages/LandingPage'
 import AdminLogin from './admin/AdminLogin'
@@ -9,9 +10,32 @@ import ManageExperience from './admin/ManageExperience'
 import ContactMessages from './admin/ContactMessages'
 import ProfileSettings from './admin/ProfileSettings'
 import ProtectedRoute from './routes/ProtectedRoute'
+import { supabase } from './services/supabaseClient'
 import './App.css'
 
 function App() {
+  useEffect(() => {
+    let isMounted = true
+
+    async function loadDocumentTitle() {
+      const { data, error } = await supabase
+        .from('profile')
+        .select('full_name')
+        .limit(1)
+        .maybeSingle()
+
+      if (isMounted && !error && data?.full_name) {
+        document.title = `${data.full_name} | Portfolio`
+      }
+    }
+
+    loadDocumentTitle()
+
+    return () => {
+      isMounted = false
+    }
+  }, [])
+
   return (
     <BrowserRouter>
       <Routes>

@@ -28,7 +28,6 @@ function Navbar({ visibleSections = {} }) {
 
       if (isMounted && !error && data?.full_name) {
         setFullName(data.full_name)
-        document.title = `${data.full_name} | Portfolio`
       }
     }
 
