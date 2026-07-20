@@ -20,12 +20,19 @@ function App() {
     async function loadDocumentTitle() {
       const { data, error } = await supabase
         .from('profile')
-        .select('full_name')
+        .select('full_name, short_intro')
         .limit(1)
         .maybeSingle()
 
       if (isMounted && !error && data?.full_name) {
         document.title = `${data.full_name} | Portfolio`
+
+        if (data.short_intro) {
+          const description = `${data.full_name} | ${data.short_intro}`
+          document.querySelectorAll('[data-dynamic-description]').forEach((meta) => {
+            meta.setAttribute('content', description)
+          })
+        }
       }
     }
 
